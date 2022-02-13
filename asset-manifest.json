@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/VisualiserTool/static/css/main.c658d096.css",
+    "main.js": "/VisualiserTool/static/js/main.c16df0ff.js",
+    "static/js/787.0c5e9af9.chunk.js": "/VisualiserTool/static/js/787.0c5e9af9.chunk.js",
+    "index.html": "/VisualiserTool/index.html",
+    "main.c658d096.css.map": "/VisualiserTool/static/css/main.c658d096.css.map",
+    "main.c16df0ff.js.map": "/VisualiserTool/static/js/main.c16df0ff.js.map",
+    "787.0c5e9af9.chunk.js.map": "/VisualiserTool/static/js/787.0c5e9af9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c658d096.css",
+    "static/js/main.c16df0ff.js"
+  ]
+}
