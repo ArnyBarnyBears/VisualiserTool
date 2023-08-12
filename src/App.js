@@ -12,7 +12,7 @@ function App() {
       <Router>
         <Navbar />
         <Switch>
-          <Route path="/VisualiserTool" exact component={Home} />
+          <Route path="/" exact component={Home} />
           <Route path="/pathfinding" exact component={PathfindingVisualizer} />
           <Route path="/sorting" exact component={SortingVisualizer} /> 
         </Switch>

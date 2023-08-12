@@ -17,7 +17,6 @@ export function getQuickSortAnimations(array) {
 export function getBubbleSortAnimations(array) {
   const animations = [];
   bubbleSortHelper(array, animations);
-  console.log(animations)
   return animations;
 }
 export function getInsertionSortAnimations(array) {

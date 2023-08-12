@@ -8,17 +8,17 @@ export default class PathFindingVisualizer extends Component {
       super();
       this.state = {
           grid: [],
-          FR: 7,
-          FC: 31,
+          FR: 8,
+          FC: 30,
           mouseIsPressed: false,
           changingStart: false,
           changingFinish: false,
           visualized: false,
           rendering: false,
           numRow: 17,
-          numCol: 37,
-          SR: 7,
-          SC: 5,
+          numCol: 37, //default values 17 rows 37 columns.
+          SR: 8,
+          SC: 6,
           speed: 10
       };  
   }
@@ -28,7 +28,7 @@ isRendering() {
 }
 
 componentDidMount() {
-  const grid = this.initializeGrid(false);
+  const grid = this.initializeGrid(false); //create a grid with default constraints
   this.setState({
       grid: grid,
   })
@@ -36,19 +36,19 @@ componentDidMount() {
 }
 
 initializeGrid(clearWall) {
-  const grid = [];
-  for (let row = 0; row < this.state.numRow; row++) {
-      const currentRow = [];
+  const grid = []; 
+  for (let row = 0; row < this.state.numRow; row++) { //iterate through all the rows and columns
+      const currentRow = []; 
       for (let col = 0; col < this.state.numCol; col++) {
-          let isW = false;
-          const element = document.getElementById(`node-${row}-${col}`);
-          if (element && (element.className === 'node node-path' || element.className === 'node node-visited')) {
-              element.className = 'node';
+          let isW = false; //iswall
+          const element = document.getElementById(`node-${row}-${col}`); //the position of the node is found
+          if (element && (element.className === 'node node-path' || element.className === 'node node-visited')) {//if this node is either part of node-path or node-visited,
+              element.className = 'node'; //add this node to the class "node"
           }
-          if (!clearWall && element && element.className === 'node node-wall') {
-              isW = true;
+          if (!clearWall && element && element.className === 'node node-wall') { //if  clearwall is false, and the specific node is a wall
+              isW = true; //isWall is true
           }
-          currentRow.push(this.createNode(row, col, isW));
+          currentRow.push(this.createNode(row, col, isW)); //create a node at the row and column, with is wall being true or false.
       }
       grid.push(currentRow);
   }
@@ -59,54 +59,55 @@ createNode(row, col, isW) {
   return {
       col,
       row,
-      isStart: row === this.state.SR && col === this.state.SC,
-      isFinish: row === this.state.FR && col === this.state.FC,
+      isStart: row === this.state.SR && col === this.state.SC, //the start node
+      isFinish: row === this.state.FR && col === this.state.FC, //the end node.
       distance: Infinity,
       heuristic: Infinity,
       isVisited: false,
       isWall: isW,
       previousNode: null,
+      //creates a node with the passed in parameters and default values for distance and heuristics.
   };
 }
 
 handleMouseDown(row, col) {
   if (row === this.state.SR && col === this.state.SC) {
-      this.setState({ changingStart: true });
+      this.setState({ changingStart: true }); //check if the node being held down is the start node.
   }
   else if (row === this.state.FR && col === this.state.FC) {
-      this.setState({ changingFinish: true });
+      this.setState({ changingFinish: true }); //check if the node being held down is the finish node.
   }
-  else if (!this.state.rendering) {
-      this.updateGridWithWall(this.state.grid, row, col);
+  else if (!this.state.rendering) { //if the node is neither the start or finish, and the visualizer tool is not currently rendering anything,
+      this.updateGridWithWall(this.state.grid, row, col); //change the node selected to either a wall, or revert it back to normal.
       this.setState({ mouseIsPressed: true });
-      this.clearVisitedAndPath();
+      this.clearVisitedAndPath(); //reset the values of all the nodes back to default
   }
 }
 
 handleMouseEnter(row, col) {
-  if (this.state.mouseIsPressed) {
-      this.updateGridWithWall(this.state.grid, row, col);
+  if (this.state.mouseIsPressed) { //wait until the mouse is pressed, before changing the node its hovering over to either a wall, or revert it back to normal
+      this.updateGridWithWall(this.state.grid, row, col); 
       this.setState({ mouseIsPressed: true });
   }
 
-  else if (this.state.changingStart && !(row === this.state.FR && col === this.state.FC)) {
-      const start = document.getElementById(`node-${this.state.SR}-${this.state.SC}`);
+  else if (this.state.changingStart && !(row === this.state.FR && col === this.state.FC)) { //if a start node has been selected, and it has been dragged to a place which isnt the position of the finish node
+      const start = document.getElementById(`node-${this.state.SR}-${this.state.SC}`); //get the node corresponding to the position of the start node
       if (start) {
           start.className = 'node';
           start.isStart = false;
-          this.state.grid[this.state.SR][this.state.SC].isStart = false;
+          this.state.grid[this.state.SR][this.state.SC].isStart = false; //change the node that used to be the start node, to a normal node now.
       }
-      const newStart = document.getElementById(`node-${row}-${col}`);
+      const newStart = document.getElementById(`node-${row}-${col}`); //get the node corresponding to the position of the new start node.
       if (newStart) {
           newStart.isStart = true;
           newStart.className = 'node node-start';
-          this.state.grid[row][col].isStart = true;
+          this.state.grid[row][col].isStart = true; //change the node to become the new start node.
       }
-      this.setState({ SR: row, SC: col });
-      this.clearVisitedAndPath();
+      this.setState({ SR: row, SC: col }); //set the SR and SC attributes equal to the new row and column which where hovered over by the mouse
+      this.clearVisitedAndPath(); //reset the values of all the nodes back to default
 
   }
-  else if (this.state.changingFinish && !(row === this.state.SR && col === this.state.SC)) {
+  else if (this.state.changingFinish && !(row === this.state.SR && col === this.state.SC)) { //this section of code will do the same as the above section of code, except on the finish node instead of the start node.
       const finish = document.getElementById(`node-${this.state.FR}-${this.state.FC}`);
       if (finish) {
           finish.className = 'node';
@@ -127,7 +128,7 @@ handleMouseEnter(row, col) {
 
 handleMouseUp() {
   this.setState({
-      changingStart: false,
+      changingStart: false, //after releasing the mouse, set the following attributes back to false, if they were ever true.
       changingFinish: false,
       mouseIsPressed: false
   });
@@ -148,13 +149,13 @@ clearVisualizer() {
 
 }
 
-clearVisitedAndPath(){
+clearVisitedAndPath(){ //go through all the nodes in the grid, and check whether the node is part of the node-visited/ node-path class
   for(let row = 0; row < this.state.numRow; row++){
       for(let col = 0; col < this.state.numCol; col++){
           let n = document.getElementById(`node-${row}-${col}`);
           console.log(n);
           if(n && (n.className === 'node node-visited' || n.className === 'node node-path')){
-              n.className = 'node';
+              n.className = 'node'; //change the class back to the original node class
           }
       }
   }
@@ -165,17 +166,17 @@ setSpeed(speed){
 }
 
 
-  animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
+  animate(visitedNodesInOrder, nodesInShortestPathOrder) {
     for (let i = 1; i <= visitedNodesInOrder.length; i++) {
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
-          this.animateShortestPath(nodesInShortestPathOrder);
-        }, this.state.speed * i); //change time (3 for fast 10 for meh 17 for slow?)
+          this.animateShortestPath(nodesInShortestPathOrder); //call the animateShortestPath function to display the optiomal path.
+        }, this.state.speed * i); 
         return;
       }
       setTimeout(() => {
         const node = visitedNodesInOrder[i];
-        document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
+        document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited'; //iterate through the visited nodes in order and animate them one by one, by changing the CSS to the node-visited class.
       }, this.state.speed * i);
     }
   }
@@ -184,7 +185,7 @@ setSpeed(speed){
     for (let i = 1; i < nodesInShortestPathOrder.length - 1; i++) {
       setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
-        document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-path';
+        document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-path'; //iterate through the nodesInShortestPathOrder array, and display all these nodes, by changing the CSS to the node-path class.
       }, this.state.speed * i * 5);
     }
   }
@@ -192,7 +193,7 @@ setSpeed(speed){
 
   
 
-  visualizeDijkstra() {
+  visualize(algorithm) {
     let g = this.initializeGrid(false);
     this.setState({
         grid: g
@@ -200,29 +201,17 @@ setSpeed(speed){
     const grid = this.state.grid;
     const start = grid[this.state.SR][this.state.SC];
     const finish = grid[this.state.FR][this.state.FC];
-    const visitedNodesInOrder = dijkstra(grid, start, finish);
+    let visitedNodesInOrder = null
+    if (algorithm) { //if algorithm is true then do dijkstra
+       visitedNodesInOrder = dijkstra(grid, start, finish);
+    }
+    else {
+       visitedNodesInOrder = AStar(grid, start, finish); //else do astar
+    }
     const shortedPath = getShortestPath(finish);
-    this.animateDijkstra(visitedNodesInOrder, shortedPath);
+    this.animate(visitedNodesInOrder, shortedPath);
+
   }
-
-  visualizeAstar() {
-    let g = this.initializeGrid(false);
-    this.setState({
-        grid: g
-    });
-    const grid = this.state.grid;
-    const start = grid[this.state.SR][this.state.SC];
-    const finish = grid[this.state.FR][this.state.FC];
-    const visitedNodesInOrder = AStar(grid, start, finish);
-    const shortedPath = getShortestPath(finish);
-    this.animateDijkstra(visitedNodesInOrder, shortedPath);
-  }
-  dropdown() {
-    document.getElementById("myDropdown").classList.toggle("show");
-  }
-
-
-
 
 
 
@@ -264,8 +253,8 @@ setSpeed(speed){
           })}
         </div>
         <div className="button">
-          <button onClick={() => this.visualizeDijkstra()}>Visualize Dijkstra's Algorithm</button>
-          <button onClick={() => this.visualizeAstar()}>Visualize A* Pathfinding Algorithm</button>
+          <button onClick={() => this.visualize(true)}>Visualize Dijkstra's Algorithm</button>
+          <button onClick={() => this.visualize(false)}>Visualize A* Pathfinding Algorithm</button>
           <button 
                           onClick={() => { 
                               primMaze(this.state.grid);
@@ -273,7 +262,7 @@ setSpeed(speed){
                               this.clearVisitedAndPath();
                           }}
                           disabled={this.state.rendering}>
-                          generate maze
+                          Generate Maze
                           
           </button>
           <button 
@@ -281,13 +270,18 @@ setSpeed(speed){
                               this.clearVisualizer();
                           }}
                           disabled={this.state.rendering}>
-                          reset grid
+                          Reset Grid
           </button>
           <div>
+            Animation Speed:
           <button onClick={() => this.setSpeed(20)}>Slow</button>
           <button onClick={() => this.setSpeed(10)}>Medium</button>
           <button onClick={() => this.setSpeed(5)}>Fast</button>
           </div>
+          Create and remove walls on the grid with your mouse, or use the maze generation to create obstacles!
+          <div>Drag the start/end nodes around with your mouse, and change the animation speed to your liking.</div>
+           
+
 
                           
           
